@@ -7,12 +7,14 @@ import { AutoCompleteComponent } from './auto-complete/auto-complete.component';
 import { CountryService } from './services/country.service';
 
 import { AppComponent } from './app.component';
+import { SearchFilterPipe } from './utils/search-filter-pipe.utils';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    AutoCompleteComponent
+    AutoCompleteComponent,
+    SearchFilterPipe
   ],
   imports: [
     BrowserModule,

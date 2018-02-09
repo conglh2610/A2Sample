@@ -58,10 +58,16 @@
     <Content Include="README.md" />
     <TypeScriptCompile Include="src\app\app.component.spec.ts" />
     <TypeScriptCompile Include="src\app\app.component.ts" />
+    <TypeScriptCompile Include="src\app\app.config.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="src\app\app.module.ts" />
     <TypeScriptCompile Include="src\app\auto-complete\auto-complete.component.spec.ts" />
     <TypeScriptCompile Include="src\app\auto-complete\auto-complete.component.ts" />
     <TypeScriptCompile Include="src\app\services\country.service.ts" />
+    <TypeScriptCompile Include="src\app\utils\search-filter-pipe.utils.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="src\environments\environment.prod.ts" />
     <TypeScriptCompile Include="src\environments\environment.ts" />
     <TypeScriptCompile Include="src\main.ts" />
@@ -74,6 +80,7 @@
     <Folder Include="src\" />
     <Folder Include="src\app\" />
     <Folder Include="src\app\auto-complete\" />
+    <Folder Include="src\app\utils\" />
     <Folder Include="src\app\services\" />
     <Folder Include="src\assets\" />
     <Folder Include="src\environments\" />

@@ -11,7 +11,6 @@ export class CountryService {
   }
 
   getCountries(): any {
-    debugger
     return this.http.get<any>('https://restcountries.eu/rest/v2/all');
   }
 }
