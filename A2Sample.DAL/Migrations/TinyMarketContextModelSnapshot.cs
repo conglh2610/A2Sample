@@ -35,7 +35,16 @@ namespace A2Sample.DAL.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ParentId");
+
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("A2Sample.DAL.Models.Category", b =>
+                {
+                    b.HasOne("A2Sample.DAL.Models.Category", "ParentCategory")
+                        .WithMany()
+                        .HasForeignKey("ParentId");
                 });
 #pragma warning restore 612, 618
         }

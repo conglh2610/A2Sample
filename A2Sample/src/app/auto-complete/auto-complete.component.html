@@ -1,29 +1,52 @@
-<div class="container">
-  <div class="row">
-    <div class="col-md-6">
-      <h2>auto complete </h2>
-      <div class="input-field col s12">
-        <input id="country" type="text" class="form-control" [(ngModel)]=query (keyup)=filter()>
-      </div>
-      <ul *ngFor="let region of countries | searchfilter:query:'region'">
-        <li>
-          <label>{{region.name}}</label>
-          <div>
-            <ul *ngFor="let country of countries | searchfilter: query: 'country': region.name">
-              <li>
-                <div>
-                  <img [src]="country.flag" style="width: 24px; height: 24px;" />
-                  <a (click)="select(country)">{{country.name}}</a>
+<div class="auto-complete-container">
+    <input id="searchText" type="text" class="form-control" [(ngModel)]=searchText [placeholder]="placeHolder" name="search-text" (focus)="searchTextFocusIn()" (focusout)="searchTextFocusOut($event)" (ngModelChange)="filterDataSource()">
+  <div class="auto-complete-content" tabindex="0" (focusout)="searchTextFocusOut($event)" >
+    <ul class="" *ngFor="let entity of filteredDataSource">
+      <li>
+        <!--level-0-->
+        <div class="auto-complete-level-0">
+          <a href="#root_{{entity.id}}" (click)="onClassChange($event)" data-toggle="collapse" aria-expanded="true">
+            <i *ngIf="entity.children && entity.children.length > 0" class="fa fa-angle-down"></i>
+          </a>
+          <label (click)="onItemSelected(entity)">{{entity.name}}</label>
+        </div>
+        <div id="root_{{entity.id}}" class="collapse in" *ngIf="entity.children && entity.children.length > 0">
+          <ul class="" *ngFor="let child of entity.children">
+            <li>
+              <!--level-1-->
+              <div class="auto-complete-level-1">
+                <div *ngIf="child.children && child.children.length > 0">
+                  <a href="#childLevel_{{child.id}}" (click)="onClassChange($event)" data-toggle="collapse" aria-expanded="true">
+                    <i class="fa fa-angle-down"></i>
+                  </a>
+                  <label (click)="onItemSelected(child)">{{child.name}}</label>
                 </div>
-              </li>
-            </ul>
-          </div>
-        </li>
-      </ul>
-    </div>
-    <div class="col-md-6">
-      <h2>Auto complete mutiple level</h2>
-    </div>
+                <div *ngIf="!child.children || child.children.length == 0">
+                  <label style="margin-left: 18px;">{{child.name}}</label>
+                </div>
+              </div>
+              <div id="childLevel_{{child.id}}" class="collapse in">
+                <ul *ngFor="let childOfChild of child.children">
+                  <li>
+                    <!--level-2-->
+                    <div class="auto-complete-level-2">
+                      <div class="last-child" (click)="onItemSelected(childOfChild)"> {{childOfChild.name}}</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </li>
+    </ul>
   </div>
-
+  <div class="items-selected">
+    <div class="bootstrap-tagsinput" *ngIf="itemsSelected.length > 0" >
+        <span class="tag label label-info" *ngFor="let itemSelected of itemsSelected">
+          {{itemSelected.name}}<span data-role="remove" (click)="removeSelectedItem(itemSelected)"></span>
+        </span>
+      </div>
+   
+    </div>
 </div>

@@ -32,8 +32,9 @@ namespace A2Sample.Api
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             services.AddMvc();
-            services.AddDbContext<TinyMarketContext>(options 
+            services.AddDbContext<TinyMarketContext>(options
                 => options.UseSqlServer(Configuration.GetConnectionString("TinyMarketConnection")));
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         }
@@ -50,6 +51,9 @@ namespace A2Sample.Api
             {
                 routes.MapRoute("default", "{controller=Home}/{action=Index}/{id?}");
             });
+
+            app.UseCors(builder =>
+                        builder.WithOrigins("http://localhost:52660"));
 
             app.Run(async (context) =>
             {

@@ -11,8 +11,8 @@ using System;
 namespace A2Sample.DAL.Migrations
 {
     [DbContext(typeof(TinyMarketContext))]
-    [Migration("20180209062541_initial-migration")]
-    partial class initialmigration
+    [Migration("20180212162805_s2")]
+    partial class s2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -36,7 +36,16 @@ namespace A2Sample.DAL.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ParentId");
+
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("A2Sample.DAL.Models.Category", b =>
+                {
+                    b.HasOne("A2Sample.DAL.Models.Category", "ParentCategory")
+                        .WithMany()
+                        .HasForeignKey("ParentId");
                 });
 #pragma warning restore 612, 618
         }
