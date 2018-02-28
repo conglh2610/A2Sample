@@ -270,6 +270,7 @@
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="src\app\services\country.service.ts" />
+    <TypeScriptCompile Include="src\app\utils\helpers.utils.ts" />
     <TypeScriptCompile Include="src\app\utils\search-filter-pipe.utils.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>

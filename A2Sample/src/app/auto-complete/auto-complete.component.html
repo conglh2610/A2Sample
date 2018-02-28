@@ -22,7 +22,7 @@
                   <label (click)="onItemSelected(child)">{{child.name}}</label>
                 </div>
                 <div *ngIf="!child.children || child.children.length == 0">
-                  <label style="margin-left: 18px;">{{child.name}}</label>
+                  <label style="margin-left: 18px;" (click)="onItemSelected(child)">{{child.name}}</label>
                 </div>
               </div>
               <div id="childLevel_{{child.id}}" class="collapse in">
@@ -42,10 +42,10 @@
     </ul>
   </div>
   <div class="items-selected">
-    <div class="bootstrap-tagsinput" *ngIf="itemsSelected.length > 0" >
-        <span class="tag label label-info" *ngFor="let itemSelected of itemsSelected">
-          {{itemSelected.name}}<span data-role="remove" (click)="removeSelectedItem(itemSelected)"></span>
-        </span>
+    <div class="bootstrap-tagsinput" *ngIf="selectedItems.length > 0" >
+      <span class="tag label label-info" *ngFor="let selectedItem of selectedItems">
+        {{selectedItem.name}}<span data-role="remove" (click)="removeSelectedItem(selectedItem)"></span>
+      </span>
       </div>
    
     </div>

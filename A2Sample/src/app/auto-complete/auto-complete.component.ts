@@ -2,6 +2,7 @@ import { Component, EventEmitter, OnInit, ModuleWithProviders, OnChanges, Output
 import { Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SearchFilterPipe } from '../utils/search-filter-pipe.utils';
+import Helpers from '../utils/helpers.utils';
 import * as $ from 'jquery';
 @Component({
   selector: 'auto-complete',
@@ -11,46 +12,80 @@ import * as $ from 'jquery';
 })
 export class AutoCompleteComponent implements OnChanges {
   private searchText = "";
+  private currentDataSource: Array<any>;
   private filteredDataSource: Array<any>;
+  // input of raw list datasource
   @Input('dataSource') rawDataSource = [];
+  // input text placeholder
   @Input('placeHolder') placeHolder: string;
-  @Output('itemsSelected') itemsSelected: Array<any> = [];
+  // output selected items
+  @Output('itemsSelected') selectedItems: Array<any> = [];
 
   constructor() {
   }
 
   ngOnChanges(changes) {
-    this.initialDataSourceMultipleLevel(this.rawDataSource);
-    this.filteredDataSource = this.clone(this.initialDataSourceMultipleLevel(this.rawDataSource));
+    // clone the raw datasource
+    this.currentDataSource = Helpers.clone(this.rawDataSource);
+    if (this.currentDataSource.length) {
+      this.filteredDataSource = this.initialDataSourceMultipleLevel();
+    }
+
   }
 
-  clone(obj) {
-    return JSON.parse(JSON.stringify(obj));
+  indexLevels(dataSource) {
+    for (let item of dataSource) {
+      item.level = this.findLevelElementInList(item, dataSource);
+    }
   }
 
-  initialDataSourceMultipleLevel(raw, isKeepRaw = false) {
-    //
-    var result = [];
-    if (!isKeepRaw) {
-      this.rawDataSource = this.clone(raw);
+  findLevelElementInList(element, list) {
+    if (element.parentId == null) {
+      return 0;
     }
     else {
-      raw.sort(function (a, b) { return (a.level > b.level) ? 1 : ((b.level > a.level) ? -1 : 0); });
+      var parent = list.filter(x => x.id == element.parentId)[0];
+      if (parent) {
+        if (parent.level != null) {
+          return parent.level + 1;
+        }
+        else {
+          debugger;
+          return this.findLevelElementInList(parent, list) + 1;
+        }
+      }
+
     }
+  }
 
-
-    for (let itemRoot of raw.filter(t => !t.parentId)) {
-      itemRoot.level = 0;
-      result.push(itemRoot);
-      this.rawDataSource.filter(t => t.id == itemRoot.id)[0].level = itemRoot.level;
+  initialDataSourceMultipleLevel(data = null) {
+    //
+    var result = [];
+    // 1. specific current datasource.
+    if (data == null) {
+      this.currentDataSource = Helpers.clone(this.rawDataSource);
     }
+    else {
+      this.currentDataSource = data;
+    }
+    //2. index levels
+    this.indexLevels(this.currentDataSource);
+    //3. sort list by level, name
+    this.currentDataSource.sort(this.compare);
 
-    for (let itemNotRoot of raw.filter(t => t.parentId)) {
-      this.addItemIntoGroup(result, itemNotRoot);
+    //4. group by by parents/children
+    //4.1 add parent group
+    for (let itemRoot of this.currentDataSource.filter(t => !t.parentId)) {
+      result.push(Helpers.clone(itemRoot));
+    }
+    // 4.2 add children group
+    for (let itemNotRoot of this.currentDataSource.filter(t => t.parentId)) {
+      this.addItemIntoGroup(result, Helpers.clone(itemNotRoot));
     }
 
     return result;
   }
+
 
   // list: [e1: {name: "Name1", ... children: [{}, {}, ...]]
   checkExistingInGroup(list, element) {
@@ -75,8 +110,6 @@ export class AutoCompleteComponent implements OnChanges {
         if (!item.children) {
           item.children = [];
         }
-        element.level = item.level + 1;
-        this.rawDataSource.filter(t => t.id == element.id)[0].level = element.level;
         item.children.push(element);
         return;
       }
@@ -91,70 +124,50 @@ export class AutoCompleteComponent implements OnChanges {
 
   filterDataSource() {
     var filterData = [];
-    var rawCloned = this.clone(this.rawDataSource);
+    // 1. clone and indexing levels the raw datascource for adding parent in the list filter.
+    var rawCloned = Helpers.clone(this.rawDataSource);
+    this.indexLevels(rawCloned);
+    this.currentDataSource = Helpers.clone(rawCloned);
+
+    // 2. filter current source by selected items
+    if (this.selectedItems.length > 0) {
+      this.currentDataSource = this.currentDataSource.filter(x => this.selectedItems.map(function (e) { return e.id; }).indexOf(x.id) < 0);
+    }
+
+    // 3. filter by text
     if (this.searchText) {
+
+      // 3.1 loop by level
       var max = Math.max.apply(Math, rawCloned.map(function (o) { return o.level; }))
       for (var i = max; 0 <= i; i--) {
+        // 3.2 filter leaf children.
         if (i == max) {
-          filterData = rawCloned.filter(function (el) {
-            return (!this.searchText || el.name.toLowerCase().indexOf(this.searchText.toLowerCase()) > -1) && el.level == i;
-          }.bind(this));
+          filterData = this.currentDataSource.filter(x => x.level == i && x.name.toLowerCase().indexOf(this.searchText.toLowerCase()) > -1);
         }
         else {
-          var filterByLevel = rawCloned.filter(function (el) {
-            return el.level == i;
-          }.bind(this));
+          var filterByLevel = rawCloned.filter(x => x.level == i);
           for (let item of filterByLevel) {
-            if (filterData.length && filterData.filter(x => x.parentId == item.id).length > 0) {
-              //item.children = filterData.filter(x => x.parentId == item.id);
-              item.children = [];
-              filterData.push(item);
+            if (this.selectedItems.filter(x => x.id == item.id).length < 1) {
+              // 3.3 add parent do not match the filter but has children match.
+              if (filterData.length && filterData.filter(x => x.parentId == item.id).length > 0) {
+                item.children = [];
+                filterData.push(item);
+              }
+
+              // 3.4 add item by specific levels
+              else if (item.name.toLowerCase().indexOf(this.searchText.toLowerCase()) > -1) {
+                item.children = [];
+                filterData.push(item);
+              }
             }
-            else if (item.name.toLowerCase().indexOf(this.searchText.toLowerCase()) > -1) {
-              item.children = [];
-              filterData.push(item);
-            }
-          }
+          } 
         }
       }
 
-      this.filteredDataSource = this.initialDataSourceMultipleLevel(filterData, true);
+      this.filteredDataSource = this.initialDataSourceMultipleLevel(filterData);
     }
     else {
-      this.filteredDataSource = this.initialDataSourceMultipleLevel(rawCloned);
-    }
-  }
-
-
-  filterMutipleLevel(currentList, valueSearch) {
-    // 1. if has any item in current list has at least 1 children.
-    if (currentList.filter(lst => lst.children && lst.children.length > 0).length > 0) {
-      // 1.1 check existing children of each item in the current list
-      for (let item of currentList) {
-        if (currentList.filter(lst => lst.children && lst.children.length > 0).length <= 0) {
-          currentList = currentList.filter(function (el) {
-            return el.name.toLowerCase().indexOf(valueSearch.toLowerCase()) > -1;
-          }.bind(this));
-        }
-        //1.1.1 if has do filter mutiple level for children of of each item in the current list
-        if (item.children && item.children.filter(t => t.children && t.children.length > 0).length > 0) {
-          this.filterMutipleLevel(item.children, valueSearch);
-        }
-        else {
-          if (item.children) {
-            item.children = item.children.filter(function (el) {
-              return el.name.toLowerCase().indexOf(valueSearch.toLowerCase()) > -1;
-            }.bind(this));
-          }
-        }
-      }
-
-    }
-    // 2. do filtering the current list
-    else {
-      currentList = currentList.filter(function (el) {
-        return el.name.toLowerCase().indexOf(valueSearch.toLowerCase()) > -1;
-      }.bind(this));
+      this.filteredDataSource = this.initialDataSourceMultipleLevel(this.currentDataSource);
     }
   }
 
@@ -182,27 +195,72 @@ export class AutoCompleteComponent implements OnChanges {
     }
   }
   searchTextFocusIn() {
+    this.filterDataSource();
     $(".auto-complete-content").css("display", "block");
   }
 
 
   onItemSelected(e) {
-    if (this.itemsSelected.filter(x => x.id == e.id).length == 0) {
-      this.itemsSelected.push(e);
-      this.rawDataSource = this.rawDataSource.filter(x => x.id != e.id);
-      this.initialDataSourceMultipleLevel(this.rawDataSource);
-      this.filteredDataSource = this.clone(this.initialDataSourceMultipleLevel(this.rawDataSource));
-      $(".auto-complete-content").css("display", "none");
+    this.currentDataSource = Helpers.clone(this.rawDataSource);
+
+    this.selectedItems.push(e);
+    if (e.children && e.children.length) {
+      for (let child of e.children) {
+        this.selectedItems = this.selectedItems.filter(x => x.id != child.id);
+      }
+    }
+   
+    this.removeAllChildrenItems(e, this.selectedItems);
+    
+    for (let item of this.selectedItems) {
+      this.currentDataSource = this.currentDataSource.filter(x => x.id != item.id);
     }
 
+    this.filteredDataSource = this.initialDataSourceMultipleLevel(this.currentDataSource);
+    $(".auto-complete-content").css("display", "none");
   }
 
   removeSelectedItem(e) {
-    this.itemsSelected = this.itemsSelected.filter(x => x.id != e.id);
-    if (this.rawDataSource.filter(x => x.id == e.id).length == 0) {
-      this.rawDataSource.push(e);
-      this.initialDataSourceMultipleLevel(this.rawDataSource);
-      this.filteredDataSource = this.clone(this.initialDataSourceMultipleLevel(this.rawDataSource));
+
+    this.currentDataSource = Helpers.clone(this.rawDataSource);
+    Helpers.removeItemFromArray(e, this.selectedItems);
+    this.currentDataSource = Helpers.clone(this.rawDataSource);
+    for (let item of this.selectedItems) {
+      this.currentDataSource = this.currentDataSource.filter(x => x.id != item.id);
     }
+
+    this.filteredDataSource = this.initialDataSourceMultipleLevel(this.currentDataSource);
+  }
+
+  removeAllChildrenItems(itemToRemove, list) {
+    if (!list.length) {
+      return;
+    }
+    for (var i = 0; i < list.length; i++) {
+      var diffLevel = list[i].level - itemToRemove.level;
+      var parent = list[i];
+      if (diffLevel > 0) {
+        while (diffLevel > 0) {
+          parent = this.currentDataSource.filter(x => x.id == parent.parentId)[0];
+          diffLevel--;
+        }
+        if (parent.id == itemToRemove.id) {
+          Helpers.removeItemFromArray(list[i], list);
+          i--;
+        }
+      }
+    }
+  }
+
+  compare(a, b) {
+    if (a.level < b.level)
+      return -1;
+    if (a.level > b.level)
+      return 1;
+    if (a.name < b.name)
+      return -1;
+    if (a.name > b.name)
+      return 1;
+    return 0;
   }
 }
