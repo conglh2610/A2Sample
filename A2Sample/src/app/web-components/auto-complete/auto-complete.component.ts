@@ -1,8 +1,8 @@
 import { Component, EventEmitter, OnInit, ModuleWithProviders, OnChanges, Output, Input } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
-import { SearchFilterPipe } from '../utils/search-filter-pipe.utils';
-import Helpers from '../utils/helpers.utils';
+import { SearchFilterPipe } from '../../utils/search-filter-pipe.utils';
+import Helpers from '../../utils/helpers.utils';
 import * as $ from 'jquery';
 @Component({
   selector: 'auto-complete',
@@ -11,15 +11,19 @@ import * as $ from 'jquery';
   styleUrls: ['./auto-complete.component.css']
 })
 export class AutoCompleteComponent implements OnChanges {
-  private searchText = "";
+  private selectOne = {name : "", id : null};
   private currentDataSource: Array<any>;
   private filteredDataSource: Array<any>;
+  private selectedItems: Array<any> = [];
   // input of raw list datasource
   @Input('dataSource') rawDataSource = [];
   // input text placeholder
   @Input('placeHolder') placeHolder: string;
+  // input allow mutiple select
+  @Input('allowMutipleSelect') allowMutipleSelect: boolean;
   // output selected items
-  @Output('itemsSelected') selectedItems: Array<any> = [];
+  @Output('selectedItems') outputSelectedItem = new EventEmitter<any>();
+  
 
   constructor() {
   }
@@ -50,11 +54,9 @@ export class AutoCompleteComponent implements OnChanges {
           return parent.level + 1;
         }
         else {
-          debugger;
           return this.findLevelElementInList(parent, list) + 1;
         }
       }
-
     }
   }
 
@@ -135,14 +137,14 @@ export class AutoCompleteComponent implements OnChanges {
     }
 
     // 3. filter by text
-    if (this.searchText) {
+    if (this.selectOne.name) {
 
       // 3.1 loop by level
       var max = Math.max.apply(Math, rawCloned.map(function (o) { return o.level; }))
       for (var i = max; 0 <= i; i--) {
         // 3.2 filter leaf children.
         if (i == max) {
-          filterData = this.currentDataSource.filter(x => x.level == i && x.name.toLowerCase().indexOf(this.searchText.toLowerCase()) > -1);
+          filterData = this.currentDataSource.filter(x => x.level == i && x.name.toLowerCase().indexOf(this.selectOne.name.toLowerCase()) > -1);
         }
         else {
           var filterByLevel = rawCloned.filter(x => x.level == i);
@@ -155,7 +157,7 @@ export class AutoCompleteComponent implements OnChanges {
               }
 
               // 3.4 add item by specific levels
-              else if (item.name.toLowerCase().indexOf(this.searchText.toLowerCase()) > -1) {
+              else if (item.name.toLowerCase().indexOf(this.selectOne.name.toLowerCase()) > -1) {
                 item.children = [];
                 filterData.push(item);
               }
@@ -184,6 +186,7 @@ export class AutoCompleteComponent implements OnChanges {
     }
 
     $(".auto-complete-content").css("display", "block");
+    //event.stopPropagation();
   }
 
   searchTextFocusOut(e) {
@@ -195,28 +198,39 @@ export class AutoCompleteComponent implements OnChanges {
     }
   }
   searchTextFocusIn() {
-    this.filterDataSource();
-    $(".auto-complete-content").css("display", "block");
+    if (this.allowMutipleSelect) {
+      this.filterDataSource();
+    }
+    $(".auto-complete-content").toggle();
   }
 
 
   onItemSelected(e) {
-    this.currentDataSource = Helpers.clone(this.rawDataSource);
+    if (this.allowMutipleSelect) {
+      this.currentDataSource = Helpers.clone(this.rawDataSource);
 
-    this.selectedItems.push(e);
-    if (e.children && e.children.length) {
-      for (let child of e.children) {
-        this.selectedItems = this.selectedItems.filter(x => x.id != child.id);
+      this.selectedItems.push(e);
+      if (e.children && e.children.length) {
+        for (let child of e.children) {
+          this.selectedItems = this.selectedItems.filter(x => x.id != child.id);
+        }
       }
+
+      this.removeAllChildrenItems(e, this.selectedItems);
+
+      for (let item of this.selectedItems) {
+        this.currentDataSource = this.currentDataSource.filter(x => x.id != item.id);
+      }
+
+      this.filteredDataSource = this.initialDataSourceMultipleLevel(this.currentDataSource);
+
     }
-   
-    this.removeAllChildrenItems(e, this.selectedItems);
-    
-    for (let item of this.selectedItems) {
-      this.currentDataSource = this.currentDataSource.filter(x => x.id != item.id);
+    else {
+      this.selectOne = e;
+      this.selectedItems = [e]
     }
 
-    this.filteredDataSource = this.initialDataSourceMultipleLevel(this.currentDataSource);
+    this.outputSelectedItem.emit(this.selectedItems);
     $(".auto-complete-content").css("display", "none");
   }
 
@@ -228,7 +242,7 @@ export class AutoCompleteComponent implements OnChanges {
     for (let item of this.selectedItems) {
       this.currentDataSource = this.currentDataSource.filter(x => x.id != item.id);
     }
-
+    this.outputSelectedItem.emit(this.selectedItems);
     this.filteredDataSource = this.initialDataSourceMultipleLevel(this.currentDataSource);
   }
 
@@ -262,5 +276,9 @@ export class AutoCompleteComponent implements OnChanges {
     if (a.name > b.name)
       return 1;
     return 0;
+  }
+
+  changeStyle(e) {
+    $(".item-active").removeClass("item-active");
   }
 }

@@ -5,7 +5,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpModule } from '@angular/http';
 
-import { AutoCompleteComponent } from './auto-complete/auto-complete.component';
+import { AutoCompleteComponent } from './web-components/auto-complete/auto-complete.component';
 import { PostDetailsComponent } from './post-details/post-details.component';
 
 import { CountryService } from './services/country.service';

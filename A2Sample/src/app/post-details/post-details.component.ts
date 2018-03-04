@@ -12,7 +12,7 @@ import { CategoryService } from '../services/category.service';
 })
 export class PostDetailsComponent  {
   private rawCategories = [];
-  private filteredList = [];
+  private selectedItems = [];
 
 
   constructor(private categoryService: CategoryService) {
@@ -20,6 +20,13 @@ export class PostDetailsComponent  {
     this.categoryService.getCategory().subscribe(raw => {
       this.rawCategories = raw;
     });
+
+
+  }
+
+  public handleEvent(childData: any) {
+    debugger
+    this.selectedItems = childData;
   }
 
   

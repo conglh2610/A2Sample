@@ -247,8 +247,8 @@
     <Content Include="package-lock.json" />
     <Content Include="src\app\app.component.css" />
     <Content Include="src\app\app.component.html" />
-    <Content Include="src\app\auto-complete\auto-complete.component.css" />
-    <Content Include="src\app\auto-complete\auto-complete.component.html" />
+    <Content Include="src\app\web-components\auto-complete\auto-complete.component.css" />
+    <Content Include="src\app\web-components\auto-complete\auto-complete.component.html" />
     <Content Include="src\assets\.gitkeep" />
     <Content Include="src\favicon.ico" />
     <Content Include="src\index.html" />
@@ -265,7 +265,7 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="src\app\app.module.ts" />
     <TypeScriptCompile Include="src\app\post-details\post-details.component.ts" />
-    <TypeScriptCompile Include="src\app\auto-complete\auto-complete.component.ts" />
+    <TypeScriptCompile Include="src\app\web-components\auto-complete\auto-complete.component.ts" />
     <TypeScriptCompile Include="src\app\services\category.service.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
@@ -285,8 +285,9 @@
     <Folder Include="e2e\" />
     <Folder Include="src\" />
     <Folder Include="src\app\" />
+    <Folder Include="src\app\web-components\" />
     <Folder Include="src\app\post-details\" />
-    <Folder Include="src\app\auto-complete\" />
+    <Folder Include="src\app\web-components\auto-complete\" />
     <Folder Include="src\app\utils\" />
     <Folder Include="src\app\services\" />
     <Folder Include="src\assets\" />

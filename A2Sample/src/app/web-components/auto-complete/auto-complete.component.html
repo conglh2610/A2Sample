@@ -1,10 +1,10 @@
 <div class="auto-complete-container">
-    <input id="searchText" type="text" class="form-control" [(ngModel)]=searchText [placeholder]="placeHolder" name="search-text" (focus)="searchTextFocusIn()" (focusout)="searchTextFocusOut($event)" (ngModelChange)="filterDataSource()">
+    <input id="searchText" type="text" class="form-control" [(ngModel)]="selectOne.name" value="selectOne.name" [placeholder]="placeHolder" name="search-text" (focus)="searchTextFocusIn()" (focusout)="searchTextFocusOut($event)" (ngModelChange)="filterDataSource()">
   <div class="auto-complete-content" tabindex="0" (focusout)="searchTextFocusOut($event)" >
     <ul class="" *ngFor="let entity of filteredDataSource">
       <li>
         <!--level-0-->
-        <div class="auto-complete-level-0">
+        <div class="item-level level-0" [ngClass]="{'item-active': entity.id == selectOne.id}" (mouseover)="changeStyle($event)">
           <a href="#root_{{entity.id}}" (click)="onClassChange($event)" data-toggle="collapse" aria-expanded="true">
             <i *ngIf="entity.children && entity.children.length > 0" class="fa fa-angle-down"></i>
           </a>
@@ -14,7 +14,7 @@
           <ul class="" *ngFor="let child of entity.children">
             <li>
               <!--level-1-->
-              <div class="auto-complete-level-1">
+              <div class="item-level level-1" (mouseover)="changeStyle($event)" [ngClass]="{'item-active': child.id == selectOne.id}">
                 <div *ngIf="child.children && child.children.length > 0">
                   <a href="#childLevel_{{child.id}}" (click)="onClassChange($event)" data-toggle="collapse" aria-expanded="true">
                     <i class="fa fa-angle-down"></i>
@@ -29,7 +29,7 @@
                 <ul *ngFor="let childOfChild of child.children">
                   <li>
                     <!--level-2-->
-                    <div class="auto-complete-level-2">
+                    <div class="item-level level-2" (mouseover)="changeStyle($event)" [ngClass]="{'item-active': childOfChild.id == selectOne.id}">
                       <div class="last-child" (click)="onItemSelected(childOfChild)"> {{childOfChild.name}}</div>
                     </div>
                   </li>
@@ -41,7 +41,7 @@
       </li>
     </ul>
   </div>
-  <div class="items-selected">
+  <div *ngIf="allowMutipleSelect" class="items-selected">
     <div class="bootstrap-tagsinput" *ngIf="selectedItems.length > 0" >
       <span class="tag label label-info" *ngFor="let selectedItem of selectedItems">
         {{selectedItem.name}}<span data-role="remove" (click)="removeSelectedItem(selectedItem)"></span>

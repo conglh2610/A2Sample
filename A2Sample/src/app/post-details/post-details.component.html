@@ -10,7 +10,16 @@
               <div class="form-group">
                 <label class="col-md-3 control-label">Categories</label>
                 <div class="col-md-8">
-                  <auto-complete [dataSource]="rawCategories" [placeHolder]="'--select a category--'"></auto-complete>
+                  <auto-complete [dataSource]="rawCategories" (selectedItems)="handleEvent($event)" [allowMutipleSelect]="false" [placeHolder]="'--select a category--'"></auto-complete>
+                </div>
+              </div>
+              <!-- Select Basic -->
+              <div class="form-group">
+                <label class="col-md-3 control-label">Categories</label>
+                <div class="col-md-8">
+                  <input id="Adtitle" name="Adtitle" placeholder="Ad title" class="form-control input-md" required="" type="text">
+                  <span class="help-block">A great title needs at least 60 characters. </span>
+                  <span *ngIf="selectedItems[0]" class="help-block">{{selectedItems[0].name}}</span>
                 </div>
               </div>
             </fieldset>

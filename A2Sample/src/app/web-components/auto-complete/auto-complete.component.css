@@ -13,36 +13,48 @@
   overflow-x: hidden;
   z-index: 99999;
   display: none;
+  position: absolute;
+  background-color: white;
 }
 
-.auto-complete-level-0, .auto-complete-level-1, .auto-complete-level-2 {
-  line-height: 22px;
+.item-level:not(.level-2) {
+  line-height: 26px;
 }
 
-.auto-complete-level-0 {
-  padding: 5px;
-  background-color: #E9E9E9;
-  font-weight: bold;
+.item-level.level-2 {
+  line-height: 28px;
 }
+ .item-level.level-0 {
+    padding-left: 5px;
+    padding-top: 4px;
+    background-color: #E9E9E9;
+    font-weight: bold;
+  }
 
-.auto-complete-level-1 {
-  margin-left: 20px;
-}
+  .item-level.level-1 {
+    padding-top: 4px;
+    padding-left: 20px;
+  }
 
 .last-child {
-  margin-left: 80px
+  padding-left: 60px
 }
 
 .auto-complete-content label {
-  margin-left: 5px;
+  padding-left: 5px;
 }
 
-.auto-complete-content label, .auto-complete-content div.last-child:hover {
+.auto-complete-content label:hover, .auto-complete-content div.last-child:hover {
   cursor: pointer;
 }
 
-.items-selected {
-  position: absolute;
+.item-active, .item-level:hover {
+  background-color: #1e90ff;
+  color: white;
+}
+
+.item-level:hover ~ body{
+  background-color: green;
 }
 
 .bootstrap-tagsinput {
@@ -60,21 +72,21 @@
   cursor: text;
 }
 
-  .bootstrap-tagsinput input {
+.bootstrap-tagsinput input {
+  border: none;
+  box-shadow: none;
+  outline: none;
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  width: auto !important;
+  max-width: inherit;
+}
+
+  .bootstrap-tagsinput input:focus {
     border: none;
     box-shadow: none;
-    outline: none;
-    background-color: transparent;
-    padding: 0;
-    margin: 0;
-    width: auto !important;
-    max-width: inherit;
   }
-
-    .bootstrap-tagsinput input:focus {
-      border: none;
-      box-shadow: none;
-    }
 
   .bootstrap-tagsinput .tag {
     margin-right: 2px;
@@ -98,3 +110,7 @@
         .bootstrap-tagsinput .tag [data-role="remove"]:hover:active {
           box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
         }
+
+#searchText {
+  background: url(../../../assets/img/arrow-down.png) calc(100% - 10px) center no-repeat;
+}
