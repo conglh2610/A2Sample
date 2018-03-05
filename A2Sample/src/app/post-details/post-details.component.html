@@ -4,23 +4,127 @@
       <h2 class="title-2 uppercase"><strong> <i class="icon-docs"></i> Post an Ad</strong> </h2>
       <div class="row">
         <div class="col-sm-12">
-          <form class="form-horizontal">
+          <form class="form-horizontal" [formGroup]="postForm">
             <fieldset>
               <!-- Select Basic -->
-              <div class="form-group">
+              <div class="form-group" [ngClass]="{'has-error': category.invalid && (category.dirty || category.touched)}">
                 <label class="col-md-3 control-label">Categories</label>
                 <div class="col-md-8">
-                  <auto-complete [dataSource]="rawCategories" (selectedItems)="handleEvent($event)" [allowMutipleSelect]="false" [placeHolder]="'--select a category--'"></auto-complete>
+                  <auto-complete [dataSource]="rawCategories" formControlName="category" ngDefaultControl required (selectedItems)="handleEvent($event)" [allowMutipleSelect]="true" [placeHolder]="'--select a category--'"></auto-complete>
                 </div>
               </div>
+              {{selectedItems.length}}
+              <!-- Text input-->
+              <div class="form-group" [ngClass]="{'has-error': title.invalid && (title.dirty || title.touched)}">
+                <label class="col-md-3 control-label" for="Adtitle">Ad title</label>
+                <div class="col-md-8">
+                  <input id="Adtitle" name="Adtitle" formControlName="title"
+                         required placeholder="A great title needs at least 60 characters. " class="form-control input-md" type="text">
+                  <div class="" *ngIf="title.errors && (title.dirty || title.touched)">
+                    <span *ngIf="title.errors.required" class="help-block">title is required. </span>
+                  </div>
+                  <pre>Valid? {{ postForm.controls.title.valid }}</pre>
+                  <pre>Dirty? {{ postForm.controls.title.dirty }}</pre>
+                </div>
+              </div>
+
+              <!-- Textarea -->
+              <div class="form-group">
+                <label class="col-md-3 control-label" for="textarea">Describe ad </label>
+                <div class="col-md-8">
+                  <textarea class="form-control" id="textarea" name="textarea">Describe what makes your ad unique</textarea>
+                </div>
+              </div>
+
+              <!-- Prepended text-->
+              <div class="form-group">
+                <label class="col-md-3 control-label" for="Price">Price</label>
+                <div class="col-md-4">
+                  <div class="input-group">
+                    <span class="input-group-addon">$</span>
+                    <input id="Price" name="Price" class="form-control" placeholder="placeholder" required="" type="text">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="checkbox">
+                    <label>
+                      <input type="checkbox">
+                      Negotiable
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- photo -->
+              <div class="form-group">
+                <label class="col-md-3 control-label">Photos</label>
+                <div class="col-md-8">
+                  <image-upload [max]="6"></image-upload>
+                </div>
+              </div>
+              <div class="content-subheading"> <i class="icon-user fa"></i> <strong>Seller information</strong> </div>
+
+              <!-- Text input-->
+              <div class="form-group">
+                <label class="col-md-3 control-label" for="textinput-name">Name</label>
+                <div class="col-md-8">
+                  <input id="textinput-name" name="textinput-name" placeholder="Seller Name" class="form-control input-md" required="" type="text">
+                </div>
+              </div>
+
+              <!-- Appended checkbox -->
+              <div class="form-group">
+                <label class="col-md-3 control-label" for="seller-email"> Seller Email</label>
+                <div class="col-md-8">
+                  <input id="seller-email" name="seller-email" class="form-control" placeholder="Email" required="" type="text">
+                </div>
+              </div>
+
+              <!-- Text input-->
+              <div class="form-group">
+                <label class="col-md-3 control-label" for="seller-Number">Phone Number</label>
+                <div class="col-md-8">
+                  <input id="seller-Number" name="seller-Number" placeholder="Phone Number" class="form-control input-md" required="" type="text">
+                </div>
+              </div>
+
               <!-- Select Basic -->
               <div class="form-group">
-                <label class="col-md-3 control-label">Categories</label>
+                <label class="col-md-3 control-label" for="seller-Location">Location</label>
                 <div class="col-md-8">
-                  <input id="Adtitle" name="Adtitle" placeholder="Ad title" class="form-control input-md" required="" type="text">
-                  <span class="help-block">A great title needs at least 60 characters. </span>
-                  <span *ngIf="selectedItems[0]" class="help-block">{{selectedItems[0].name}}</span>
+                  <select id="seller-Location" name="seller-Location" class="form-control">
+                    <option value="1">Option one</option>
+                    <option value="2">Option two</option>
+                  </select>
                 </div>
+              </div>
+
+              <!-- Select Basic -->
+              <div class="form-group">
+                <label class="col-md-3 control-label" for="seller-area">City</label>
+                <div class="col-md-8">
+                  <select id="seller-area" name="seller-area" class="form-control">
+                    <option value="1">Option one</option>
+                    <option value="2">Option two</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- terms -->
+              <div class="form-group">
+                <label class="col-md-3 control-label">Terms</label>
+                <div class="col-md-8">
+                  <label class="checkbox-inline" for="checkboxes-0">
+                    <input name="checkboxes" id="checkboxes-0" value="Remember above contact information." type="checkbox">
+                    Remember above contact information.
+                  </label>
+                </div>
+              </div>
+
+              <!-- Button  -->
+              <div class="form-group">
+                <label class="col-md-3 control-label"></label>
+                <div class="col-md-8"> <a href="posting-success.html" id="button1id" class="btn btn-success btn-lg">Submit</a> </div>
               </div>
             </fieldset>
           </form>

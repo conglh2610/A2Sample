@@ -1,6 +1,6 @@
-import { Component, EventEmitter, ModuleWithProviders, ElementRef, Output, Input } from '@angular/core';
+import { Component, EventEmitter, Output, Input, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { CategoryService } from '../services/category.service';
 
 
@@ -10,7 +10,12 @@ import { CategoryService } from '../services/category.service';
   styleUrls: ['./post-details.component.css']
 
 })
-export class PostDetailsComponent  {
+export class PostDetailsComponent implements OnInit {
+  postForm: FormGroup;
+  category: FormControl;
+  title: FormControl;
+  email: FormControl;
+
   private rawCategories = [];
   private selectedItems = [];
 
@@ -24,10 +29,25 @@ export class PostDetailsComponent  {
 
   }
 
+  ngOnInit(): void {
+    this.initFormControls();
+    this.createForm();
+  }
+
+  initFormControls() {
+    this.category = new FormControl('', Validators.required);
+    this.title = new FormControl('', Validators.required);
+  }
+
+  createForm() {
+    this.postForm = new FormGroup({
+      category: this.category,
+      title: this.title
+    })
+  }
+
   public handleEvent(childData: any) {
-    debugger
     this.selectedItems = childData;
   }
 
-  
 }

@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpModule } from '@angular/http';
@@ -13,6 +13,8 @@ import { CategoryService } from './services/category.service';
 import { AppComponent } from './app.component';
 
 import { SearchFilterPipe } from './utils/search-filter-pipe.utils';
+
+import { ImageUploadModule } from "angular2-image-upload";
 
 
 @NgModule({
@@ -27,8 +29,9 @@ import { SearchFilterPipe } from './utils/search-filter-pipe.utils';
     FormsModule,
     NgbModule.forRoot(),
     HttpClientModule,
-    HttpModule
-
+    HttpModule,
+    ReactiveFormsModule,
+    ImageUploadModule.forRoot()
   ],
   providers: [CountryService, CategoryService, HttpClientModule],
   bootstrap: [AppComponent]
