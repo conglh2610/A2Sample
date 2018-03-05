@@ -186,7 +186,6 @@ export class AutoCompleteComponent implements OnChanges {
     }
 
     $(".auto-complete-content").css("display", "block");
-    //event.stopPropagation();
   }
 
   searchTextFocusOut(e) {
